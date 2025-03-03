@@ -1,18 +1,28 @@
 defmodule Thor do
   @moduledoc """
-  Documentation for `Thor`.
+  Get a handle on your thundering herd with Thor.
   """
 
-  @doc """
-  Hello world.
+  defmacro __using__(_opts) do
+    quote do
+      import Thor
+      @before_compile Thor
 
-  ## Examples
+      Module.register_attribute(__MODULE__, :thor_assigns, accumulate: true)
+    end
+  end
 
-      iex> Thor.hello()
-      :world
+  defmacro cacheable(assign) do
+    quote do
+      Module.put_attribute(__MODULE__, :thor_assigns, unquote(assign))
+    end
+  end
 
-  """
-  def hello do
-    :world
+  defmacro __before_compile__(_env) do
+    quote do
+      def __thor_assigns__ do
+        @thor_assigns
+      end
+    end
   end
 end
